@@ -1,0 +1,31 @@
+﻿<Window x:Class="SudokuMultimodal.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SudokuMultimodal"
+        mc:Ignorable="d"
+        Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470">
+    <Viewbox Stretch="Uniform" Margin="10">
+        <DockPanel>
+            <Grid Name="mainGrid" DockPanel.Dock="Left" Width="{Binding ElementName=mainGrid, Path=ActualHeight}"/>
+            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                <Button FontSize="30" Margin="10,10,0,10" Click="BotónNuevoClick">Nuevo</Button>
+                <Button FontSize="30" Margin="10,10,0,10" Click="BotónReiniciarClick">Reiniciar</Button>
+                <CheckBox Name="CB_VerPosibles" FontSize="15" Margin="10,10,0,10" Click="CheckboxVerPosiblesClick">
+                    <CheckBox.LayoutTransform>
+                        <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                    </CheckBox.LayoutTransform>
+                    Ver posibles
+                </CheckBox>
+            </StackPanel>
+            <Popup Name="popup" IsOpen="False" Placement="Mouse" AllowsTransparency="True" Width="250" Height="250">
+                <Canvas Width="250" Height="250">
+                    <Ellipse Canvas.Top="0" Canvas.Left="110"
+                        Fill="Red"
+                     Height="50" Width="50"></Ellipse>
+                </Canvas>
+            </Popup>
+        </DockPanel>
+    </Viewbox>
+</Window>
