@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Speech" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -113,6 +114,12 @@
       <Project>{f231bd40-b0fa-447e-8a7b-351b4e8913f4}</Project>
       <Name>UdpmoteLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\voice_on.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\recog_failed.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -59,5 +59,23 @@ namespace SudokuMultimodal.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream recog_failed {
+            get {
+                return ResourceManager.GetStream("recog_failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream voice_on {
+            get {
+                return ResourceManager.GetStream("voice_on", resourceCulture);
+            }
+        }
     }
 }

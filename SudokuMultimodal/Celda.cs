@@ -11,6 +11,9 @@ using System.Windows.Input;
 using System.IO;
 using Microsoft.Ink;
 using System.Text.RegularExpressions;
+using System.Speech.Recognition;
+using System.Media;
+using SudokuMultimodal.Properties;
 
 namespace SudokuMultimodal
 {
@@ -25,6 +28,11 @@ namespace SudokuMultimodal
             {
                 _estáSeleccionado = value;
                 selecciónBorde.Visibility = _estáSeleccionado ? Visibility.Visible : Visibility.Hidden;
+
+                if (!_estáSeleccionado)
+                {
+                    inkCanvas.IsEnabled = false;
+                }
             }
         }
 
@@ -36,6 +44,7 @@ namespace SudokuMultimodal
             _solicitudSeleccionada = solicitudSeleccionada;
             UI = new Border() { BorderBrush = Brushes.Black, BorderThickness = new Thickness(0.5), Background=Brushes.Transparent };
             UI.PreviewMouseDown += new System.Windows.Input.MouseButtonEventHandler(UI_MouseDown);
+            UI.MouseUp += UI_MouseUp;
             var grid = new Grid();
             UI.Child = grid;
 
@@ -54,6 +63,8 @@ namespace SudokuMultimodal
             grid.Children.Add(inkCanvas);
             SetupInkCanvas();
 
+            SetupVoice();
+
             _modificable = número == 0;
             _textBlock.Foreground = _modificable ? Brushes.Blue : Brushes.Black;
             if (número != 0)
@@ -62,7 +73,33 @@ namespace SudokuMultimodal
 
         void UI_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            _solicitudSeleccionada();
+            if (!EstáSeleccionada)
+                _solicitudSeleccionada();
+
+            var leftButton = e.MouseDevice.LeftButton;
+            if (leftButton == MouseButtonState.Pressed)
+            {
+                if (!inkCanvas.IsEnabled)
+                    voiceEnablingTimer.Start();
+            }  
+        }
+
+        private void UI_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var leftButton = e.MouseDevice.LeftButton;
+            if (leftButton != MouseButtonState.Pressed)
+            {
+                // Si se levanta el botón 
+                if (voiceEnablingTimer.IsEnabled)
+                {
+                    voiceEnablingTimer.Stop();
+                    inkCanvas.IsEnabled = true;
+                }
+                else
+                {
+                    speechRecognizer.RecognizeAsyncStop();
+                }
+            }
         }
 
         #region public
@@ -146,6 +183,7 @@ namespace SudokuMultimodal
             timer.Interval = TimeSpan.FromMilliseconds(1000);
 
             inkCanvas.MouseMove += InkCanvas_MouseMove;
+            inkCanvas.IsEnabled = false;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -212,6 +250,56 @@ namespace SudokuMultimodal
         private bool isAcceptedChar(string s)
         {
             return Regex.Match(s, acceptedCharRegex).Success;
+        }
+
+        #endregion
+
+        #region Mouse&Voice
+        private const string DELETE = "Borrar";
+
+        private SpeechRecognitionEngine speechRecognizer;
+        private DispatcherTimer voiceEnablingTimer;
+        private SoundPlayer voiceOn, recognitionFailed;
+
+        private void SetupVoice()
+        {
+            voiceEnablingTimer = new DispatcherTimer();
+            voiceEnablingTimer.Interval = TimeSpan.FromMilliseconds(500);
+            voiceEnablingTimer.Tick += VoiceEnablingTimer_Tick;
+
+            Choices grammarChoices = new Choices();
+            for (var i = 1; i <= 9; i++)
+                grammarChoices.Add(i.ToString());
+            grammarChoices.Add("Borrar");
+            GrammarBuilder gb = new GrammarBuilder(grammarChoices);
+            Grammar grammar = new Grammar(gb);
+
+            speechRecognizer = new SpeechRecognitionEngine();
+            speechRecognizer.LoadGrammar(grammar);
+            speechRecognizer.SpeechRecognized += SpeechRecognizer_SpeechRecognized;
+            speechRecognizer.SpeechRecognitionRejected += SpeechRecognizer_SpeechRecognitionRejected;
+            speechRecognizer.SetInputToDefaultAudioDevice();
+
+            voiceOn = new SoundPlayer(Resources.voice_on);
+            recognitionFailed = new SoundPlayer(Resources.recog_failed);
+        }
+
+        private void SpeechRecognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            string result = e.Result.Text;
+            _solicitudCambioNúmero(result.Equals(DELETE) ? 0 : int.Parse(result));
+        }
+
+        private void SpeechRecognizer_SpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            recognitionFailed.Play();
+        }
+
+        private void VoiceEnablingTimer_Tick(object sender, EventArgs e)
+        {
+            voiceEnablingTimer.Stop();
+            speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
+            voiceOn.Play();
         }
 
         #endregion
