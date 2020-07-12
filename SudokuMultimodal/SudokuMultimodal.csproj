@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Celda.cs" />
+    <Compile Include="SpeechRecognitionService.cs" />
     <Compile Include="Sudoku.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

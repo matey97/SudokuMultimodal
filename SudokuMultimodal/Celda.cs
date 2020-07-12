@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Speech.Recognition;
 using System.Media;
 using SudokuMultimodal.Properties;
+using System.Windows.Shapes;
 
 namespace SudokuMultimodal
 {
@@ -38,10 +39,11 @@ namespace SudokuMultimodal
 
         // solicitudCambioNúmero: Cuando la celda solicita cambiar el número que contiene (p.e. la tinta reconocida).
         // solicitudSeleccionada: Cuando la celda solicita ser la seleccionada.
-        public Celda(int número, Action<int> solicitudCambioNúmero, Action solicitudSeleccionada)
+        public Celda(int número, Action<int> solicitudCambioNúmero, Action solicitudSeleccionada, Action<UIElement> requestNumbersPopup)
         {
             _solicitudCambioNúmero = solicitudCambioNúmero;
             _solicitudSeleccionada = solicitudSeleccionada;
+            _requestNumbersPopup = requestNumbersPopup;
             UI = new Border() { BorderBrush = Brushes.Black, BorderThickness = new Thickness(0.5), Background=Brushes.Transparent };
             UI.PreviewMouseDown += new System.Windows.Input.MouseButtonEventHandler(UI_MouseDown);
             UI.MouseUp += UI_MouseUp;
@@ -81,7 +83,11 @@ namespace SudokuMultimodal
             {
                 if (!inkCanvas.IsEnabled)
                     voiceEnablingTimer.Start();
-            }  
+            }
+
+            var rightButton = e.MouseDevice.RightButton;
+            if (rightButton == MouseButtonState.Pressed)
+                _requestNumbersPopup(UI);
         }
 
         private void UI_MouseUp(object sender, MouseButtonEventArgs e)
@@ -97,7 +103,8 @@ namespace SudokuMultimodal
                 }
                 else
                 {
-                    speechRecognizer.RecognizeAsyncStop();
+                    speechRecognitionService.SpeechRecognized -= SpeechRecognitionService_SpeechRecognized;
+                    speechRecognitionService.RequestDisableRecognition();
                 }
             }
         }
@@ -142,6 +149,7 @@ namespace SudokuMultimodal
 
         readonly Action<int> _solicitudCambioNúmero;
         readonly Action _solicitudSeleccionada;
+        readonly Action<UIElement> _requestNumbersPopup;
         static readonly FontFamily _fuente = new FontFamily("Comic Sans MS");
         bool _estáSeleccionado;
         readonly Border selecciónBorde = new Border() { BorderBrush = Brushes.Red, BorderThickness = new Thickness(2), Visibility = Visibility.Hidden };
@@ -257,7 +265,7 @@ namespace SudokuMultimodal
         #region Mouse&Voice
         private const string DELETE = "Borrar";
 
-        private SpeechRecognitionEngine speechRecognizer;
+        private SpeechRecognitionService speechRecognitionService;
         private DispatcherTimer voiceEnablingTimer;
         private SoundPlayer voiceOn, recognitionFailed;
 
@@ -267,39 +275,21 @@ namespace SudokuMultimodal
             voiceEnablingTimer.Interval = TimeSpan.FromMilliseconds(500);
             voiceEnablingTimer.Tick += VoiceEnablingTimer_Tick;
 
-            Choices grammarChoices = new Choices();
-            for (var i = 1; i <= 9; i++)
-                grammarChoices.Add(i.ToString());
-            grammarChoices.Add("Borrar");
-            GrammarBuilder gb = new GrammarBuilder(grammarChoices);
-            Grammar grammar = new Grammar(gb);
-
-            speechRecognizer = new SpeechRecognitionEngine();
-            speechRecognizer.LoadGrammar(grammar);
-            speechRecognizer.SpeechRecognized += SpeechRecognizer_SpeechRecognized;
-            speechRecognizer.SpeechRecognitionRejected += SpeechRecognizer_SpeechRecognitionRejected;
-            speechRecognizer.SetInputToDefaultAudioDevice();
-
-            voiceOn = new SoundPlayer(Resources.voice_on);
-            recognitionFailed = new SoundPlayer(Resources.recog_failed);
+            speechRecognitionService = SpeechRecognitionService.GetInstance();
+            
         }
 
-        private void SpeechRecognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        private void SpeechRecognitionService_SpeechRecognized(SpeechRecognizedEventArgs e)
         {
             string result = e.Result.Text;
             _solicitudCambioNúmero(result.Equals(DELETE) ? 0 : int.Parse(result));
         }
 
-        private void SpeechRecognizer_SpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
-        {
-            recognitionFailed.Play();
-        }
-
         private void VoiceEnablingTimer_Tick(object sender, EventArgs e)
         {
             voiceEnablingTimer.Stop();
-            speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
-            voiceOn.Play();
+            speechRecognitionService.SpeechRecognized += SpeechRecognitionService_SpeechRecognized;
+            speechRecognitionService.RequestEnableRecognition();
         }
 
         #endregion

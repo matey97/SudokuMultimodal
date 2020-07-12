@@ -51,6 +51,9 @@ namespace SudokuMultimodal
             _cuadrantes = new Cuadrante[Sudoku.Tamaño];
 
             SetupUdpmote();
+            SetupNumbersPopup();
+
+            SpeechRecognitionService.GetInstance().SetGrammar(GrammarType.MOUSE_VOICE);
 
             NuevaPartida();
         }
@@ -85,7 +88,7 @@ namespace SudokuMultimodal
 
             for (int cuad = 0; cuad < Sudoku.Tamaño; ++cuad)
             {
-                var cuadrante = new Cuadrante(_s, cuad, SolicitudCambioNúmero, SolicitudSeleccionada);
+                var cuadrante = new Cuadrante(_s, cuad, SolicitudCambioNúmero, SolicitudSeleccionada, RequestNumbersPopup);
                 _cuadrantes[cuad] = cuadrante;
                 _ug.Children.Add(cuadrante.UI);
             }
@@ -311,7 +314,7 @@ namespace SudokuMultimodal
         private void HandleGesture(string gestureName)
         {
             var isNumeric = int.TryParse(gestureName, out int number);
-
+            Console.WriteLine(gestureName);
             if (isNumeric)
             {
                 _s[_filaActual, _columnaActual] = number;
@@ -337,6 +340,105 @@ namespace SudokuMultimodal
                         break;
                 }
             }
+        }
+
+        #endregion
+
+        #region OnlyMouse(Popup)
+        private const int RADIUS = 46;
+        private const int ANGLE_SEPARATION = 36; // 360º/10
+        private const int ANGLE_OFFSET = 180;
+
+        private Popup numbersPopup = new Popup()
+        {
+            Width = 120,
+            Height = 122,
+            IsOpen = false,
+            AllowsTransparency = true,
+            PopupAnimation = PopupAnimation.Fade,
+            Placement = PlacementMode.Center //Magia
+        };
+        private Canvas numbersCanvas = new Canvas()
+        {
+            Width = 120,
+            Height = 122
+        };
+
+        private void SetupNumbersPopup()
+        {
+            Ellipse number;
+            for (var i = 0; i < 10; i++)
+            {
+                number = new Ellipse
+                {
+                    Width = 30,
+                    Height = 30,
+                    Stroke = Brushes.Black,
+                    Fill = Brushes.Cyan
+                };
+                number.Name = i == 0 ? "X" : "Number_" + i;
+
+                (double x, double y) = GetNumberCoordinates(i);
+
+                TextBlock textNumber = new TextBlock()
+                {
+                    Text = i == 0 ? "X" : i.ToString(),
+                    FontSize = 20
+                };
+
+                number.MouseDown += Number_MouseDown;
+                textNumber.MouseDown += TextNumber_MouseDown;
+
+                Canvas.SetTop(number, x);
+                Canvas.SetLeft(number, y);
+                Canvas.SetTop(textNumber, x);
+                Canvas.SetLeft(textNumber, y + 10);
+
+                numbersCanvas.Children.Add(number);
+                numbersCanvas.Children.Add(textNumber);
+            }
+            numbersPopup.Child = numbersCanvas;
+        }
+
+        private void Number_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            numbersPopup.IsOpen = false;
+            string result = ((Ellipse)sender).Name;
+
+            if (result.Equals("X"))
+                result = "0";
+            else
+                result = result.Split('_')[1];
+
+            _s[_filaActual, _columnaActual] = int.Parse(result);
+        }
+
+        private void TextNumber_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            numbersPopup.IsOpen = false;
+            string result = ((TextBlock)sender).Text;
+
+            if (result.Equals("X"))
+                result = "0";
+
+            _s[_filaActual, _columnaActual] = int.Parse(result);
+        }
+
+        private (double, double) GetNumberCoordinates(int i)
+        {
+            double x = Math.Cos((Math.PI / 180) * (ANGLE_SEPARATION * -i + ANGLE_OFFSET)) * RADIUS;
+            double y = Math.Sin((Math.PI / 180) * (ANGLE_SEPARATION * -i + ANGLE_OFFSET)) * RADIUS;
+
+            return (x + RADIUS, y + RADIUS);
+        }
+
+        private void RequestNumbersPopup(UIElement element)
+        {
+            if (numbersPopup.IsOpen)
+                numbersPopup.IsOpen = false;
+
+            numbersPopup.PlacementTarget = element;
+            numbersPopup.IsOpen = true;
         }
 
         #endregion
