@@ -166,6 +166,8 @@ namespace SudokuMultimodal
             _cuadrantes[cuad2].SeleccionaCelda(pos2);
             _filaActual = fil;
             _columnaActual = col;
+
+            numbersPopup.IsOpen = false;
         }
 
         void ActualizaPosibles()
@@ -374,7 +376,7 @@ namespace SudokuMultimodal
                     Width = 30,
                     Height = 30,
                     Stroke = Brushes.Black,
-                    Fill = Brushes.Cyan
+                    Fill = Brushes.Blue
                 };
                 number.Name = i == 0 ? "X" : "Number_" + i;
 
@@ -383,7 +385,8 @@ namespace SudokuMultimodal
                 TextBlock textNumber = new TextBlock()
                 {
                     Text = i == 0 ? "X" : i.ToString(),
-                    FontSize = 20
+                    FontSize = 20,
+                    Foreground = Brushes.White
                 };
 
                 number.MouseDown += Number_MouseDown;
@@ -397,6 +400,7 @@ namespace SudokuMultimodal
                 numbersCanvas.Children.Add(number);
                 numbersCanvas.Children.Add(textNumber);
             }
+            
             numbersPopup.Child = numbersCanvas;
         }
 
@@ -434,9 +438,6 @@ namespace SudokuMultimodal
 
         private void RequestNumbersPopup(UIElement element)
         {
-            if (numbersPopup.IsOpen)
-                numbersPopup.IsOpen = false;
-
             numbersPopup.PlacementTarget = element;
             numbersPopup.IsOpen = true;
         }

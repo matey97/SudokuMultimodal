@@ -19,13 +19,6 @@
                     Ver posibles
                 </CheckBox>
             </StackPanel>
-            <Popup Name="popup" IsOpen="False" Placement="Mouse" AllowsTransparency="True" Width="250" Height="250">
-                <Canvas Width="250" Height="250">
-                    <Ellipse Canvas.Top="0" Canvas.Left="110"
-                        Fill="Red"
-                     Height="50" Width="50"></Ellipse>
-                </Canvas>
-            </Popup>
         </DockPanel>
     </Viewbox>
 </Window>

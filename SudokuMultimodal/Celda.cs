@@ -29,11 +29,6 @@ namespace SudokuMultimodal
             {
                 _estáSeleccionado = value;
                 selecciónBorde.Visibility = _estáSeleccionado ? Visibility.Visible : Visibility.Hidden;
-
-                if (!_estáSeleccionado)
-                {
-                    inkCanvas.IsEnabled = false;
-                }
             }
         }
 
@@ -46,6 +41,7 @@ namespace SudokuMultimodal
             _requestNumbersPopup = requestNumbersPopup;
             UI = new Border() { BorderBrush = Brushes.Black, BorderThickness = new Thickness(0.5), Background=Brushes.Transparent };
             UI.PreviewMouseDown += new System.Windows.Input.MouseButtonEventHandler(UI_MouseDown);
+            UI.PreviewMouseMove += UI_PreviewMouseMove;
             UI.MouseUp += UI_MouseUp;
             var grid = new Grid();
             UI.Child = grid;
@@ -81,8 +77,8 @@ namespace SudokuMultimodal
             var leftButton = e.MouseDevice.LeftButton;
             if (leftButton == MouseButtonState.Pressed)
             {
-                if (!inkCanvas.IsEnabled)
-                    voiceEnablingTimer.Start();
+                voiceEnablingTimer.Start();
+                inkCanvas.EditingMode = InkCanvasEditingMode.Ink;
             }
 
             var rightButton = e.MouseDevice.RightButton;
@@ -90,16 +86,26 @@ namespace SudokuMultimodal
                 _requestNumbersPopup(UI);
         }
 
+        private Point lastPoint;
+        private void UI_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            var point = e.GetPosition((IInputElement)e.OriginalSource);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (voiceEnablingTimer.IsEnabled && point != lastPoint)
+                    voiceEnablingTimer.Stop();
+            }
+            lastPoint = point;
+        }
+
         private void UI_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var leftButton = e.MouseDevice.LeftButton;
             if (leftButton != MouseButtonState.Pressed)
-            {
-                // Si se levanta el botón 
+            { 
                 if (voiceEnablingTimer.IsEnabled)
                 {
                     voiceEnablingTimer.Stop();
-                    inkCanvas.IsEnabled = true;
                 }
                 else
                 {
@@ -180,7 +186,8 @@ namespace SudokuMultimodal
         {
             Background = Brushes.Transparent,
             MinHeight = 0.0,
-            MinWidth = 0.0
+            MinWidth = 0.0,
+            EditingMode = InkCanvasEditingMode.None
         };
         private DispatcherTimer timer;
 
@@ -191,7 +198,6 @@ namespace SudokuMultimodal
             timer.Interval = TimeSpan.FromMilliseconds(1000);
 
             inkCanvas.MouseMove += InkCanvas_MouseMove;
-            inkCanvas.IsEnabled = false;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -267,7 +273,6 @@ namespace SudokuMultimodal
 
         private SpeechRecognitionService speechRecognitionService;
         private DispatcherTimer voiceEnablingTimer;
-        private SoundPlayer voiceOn, recognitionFailed;
 
         private void SetupVoice()
         {
@@ -288,6 +293,7 @@ namespace SudokuMultimodal
         private void VoiceEnablingTimer_Tick(object sender, EventArgs e)
         {
             voiceEnablingTimer.Stop();
+            inkCanvas.EditingMode = InkCanvasEditingMode.None;
             speechRecognitionService.SpeechRecognized += SpeechRecognitionService_SpeechRecognized;
             speechRecognitionService.RequestEnableRecognition();
         }
