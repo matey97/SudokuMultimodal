@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Speech.Recognition;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +55,9 @@ namespace SudokuMultimodal
             SetupNumbersPopup();
 
             SpeechRecognitionService.GetInstance().SetGrammar(GrammarType.MOUSE_VOICE);
+
+            SetupHeaders();
+            SetupVoiceOnly();
 
             NuevaPartida();
         }
@@ -441,6 +445,146 @@ namespace SudokuMultimodal
             numbersPopup.PlacementTarget = element;
             numbersPopup.IsOpen = true;
         }
+
+        #endregion
+
+        #region OnlyVoice
+        private const string TOP_HEADER = "123456789", LEFT_HEADER = "ABCDEFGHI";
+        private const string NEW_KEY = "NewSudoku", RESTART_KEY = "Restart", PROBABLE_KEY = "SeeProbable", NUMBER_KEY = "Number";
+
+        private SpeechRecognitionService speechRecognitionService = SpeechRecognitionService.GetInstance();
+        private UniformGrid topHeader, leftHeader;
+
+        private void SetupHeaders()
+        {
+            topHeader = CreateHeader("TOP");
+            leftHeader = CreateHeader("LEFT");
+
+            Grid.SetRow(topHeader, 0);
+            Grid.SetRow(leftHeader, 1);
+            Grid.SetColumn(topHeader, 1);
+            Grid.SetColumn(leftHeader, 0);
+        }
+
+        private UniformGrid CreateHeader(string type)
+        {
+            bool isTop = type.Equals("TOP");
+            string headerValues = isTop ? TOP_HEADER : LEFT_HEADER;
+
+            UniformGrid uniformGrid = new UniformGrid()
+            {
+                Rows = isTop ? 1 : 9,
+                Columns = isTop ? 9 : 1
+            };
+
+            Thickness margin = isTop ? new Thickness(0, 0, 0, 10) : new Thickness(0, 0, 15, 0);
+            foreach (var c in headerValues)
+                uniformGrid.Children.Add(new TextBlock()
+                {
+                    Text = c.ToString(),
+                    FontFamily = new FontFamily("Comic Sans MS"),
+                    FontSize = 40,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = margin
+                });
+
+            return uniformGrid;
+        }
+
+        private void ShowHeaders()
+        {
+            superGrid.Children.Add(topHeader);
+            superGrid.Children.Add(leftHeader);
+        }
+
+        private void HideHeaders()
+        {
+            superGrid.Children.Remove(topHeader);
+            superGrid.Children.Remove(leftHeader);
+        }
+
+        private void SetupVoiceOnly()
+        {
+            speechRecognitionService.SpeechRecognized += SpeechRecognitionService_SpeechRecognized;
+        }
+
+        private void SpeechRecognitionService_SpeechRecognized(System.Speech.Recognition.SpeechRecognizedEventArgs e)
+        {
+            Console.WriteLine(e.Result.Text);
+            SemanticValue semantics = e.Result.Semantics;
+
+            if (semantics.ContainsKey(NEW_KEY))
+                NuevaPartida();
+            else if (semantics.ContainsKey(RESTART_KEY))
+                ReiniciarPartida();
+            else if (semantics.ContainsKey(PROBABLE_KEY))
+            {
+
+                CB_VerPosibles.IsChecked = mostrarPosibles = bool.Parse(semantics[PROBABLE_KEY].Value.ToString());
+                ActualizaPosibles();
+            } else
+            {
+                int newNumber = 0;
+
+                if (semantics.ContainsKey(NUMBER_KEY))
+                    newNumber = int.Parse(semantics[NUMBER_KEY].Value.ToString());
+
+                int row = LEFT_HEADER.IndexOf(semantics["Row"].Value.ToString());
+                int column = int.Parse(semantics["Column"].Value.ToString()) - 1;
+                
+                PonSelecciónEn(row, column);
+                _s[_filaActual, _columnaActual] = newNumber;
+            }
+        }
+
+        private void CB_SoloVoz_Click(object sender, RoutedEventArgs e)
+        {
+            if (CB_SoloVoz.IsChecked == true)
+            {
+                speechRecognitionService.SetGrammar(GrammarType.ONLY_VOICE);
+                speechRecognitionService.RequestEnableRecognition();
+                ShowHeaders();
+                DisableOtherInputMethods();
+            } else
+            {
+                speechRecognitionService.RequestDisableRecognition();
+                speechRecognitionService.SetGrammar(GrammarType.MOUSE_VOICE);
+                HideHeaders();
+                EnableOtherInputMethods();
+            }
+        }
+
+        private void EnableOtherInputMethods()
+        {
+            KeyDown += MainWindow_KeyDown;
+            udpmote.UdpmoteChanged += Udpmote_UdpmoteChanged;
+            EnableInputMethodsInQuadrantCells();
+        }
+
+        private void DisableOtherInputMethods()
+        {
+            KeyDown -= MainWindow_KeyDown;
+            udpmote.UdpmoteChanged -= Udpmote_UdpmoteChanged;
+            DisableInputMethodsInQuadrantCells();
+        }
+
+        private void EnableInputMethodsInQuadrantCells()
+        {
+            foreach (var quadrant in _cuadrantes)
+            {
+                quadrant.EnableInputMethodsInCells();
+            }
+        }
+
+        private void DisableInputMethodsInQuadrantCells()
+        {
+            foreach (var quadrant in _cuadrantes)
+            {
+                quadrant.DisableInputMethodsInCells();
+            }
+        }
+
 
         #endregion
     }

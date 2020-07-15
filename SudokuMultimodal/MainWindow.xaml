@@ -8,17 +8,35 @@
         Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470">
     <Viewbox Stretch="Uniform" Margin="10">
         <DockPanel>
-            <Grid Name="mainGrid" DockPanel.Dock="Left" Width="{Binding ElementName=mainGrid, Path=ActualHeight}"/>
-            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Center" >
-                <Button FontSize="30" Margin="10,10,0,10" Click="BotónNuevoClick">Nuevo</Button>
-                <Button FontSize="30" Margin="10,10,0,10" Click="BotónReiniciarClick">Reiniciar</Button>
-                <CheckBox Name="CB_VerPosibles" FontSize="15" Margin="10,10,0,10" Click="CheckboxVerPosiblesClick">
+            <Grid Name="superGrid" DockPanel.Dock="Left" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Row="1" Grid.Column="1" Name="mainGrid" Width="{Binding ElementName=mainGrid, Path=ActualHeight}"/>
+            </Grid>
+            <UniformGrid Rows="2" DockPanel.Dock="Right">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
+                    <Button FontSize="30" Margin="10,10,0,10" Click="BotónNuevoClick">Nuevo</Button>
+                    <Button FontSize="30" Margin="10,10,0,10" Click="BotónReiniciarClick">Reiniciar</Button>
+                    <CheckBox Name="CB_VerPosibles" FontSize="15" Margin="10,10,0,10" Click="CheckboxVerPosiblesClick">
+                        <CheckBox.LayoutTransform>
+                            <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                        </CheckBox.LayoutTransform>
+                        Ver posibles
+                    </CheckBox>
+                </StackPanel>
+                <CheckBox Name="CB_SoloVoz" FontSize="15" Margin="10,10,0,10" VerticalAlignment="Center" Click="CB_SoloVoz_Click">
                     <CheckBox.LayoutTransform>
                         <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
                     </CheckBox.LayoutTransform>
-                    Ver posibles
+                    Solo Voz
                 </CheckBox>
-            </StackPanel>
+            </UniformGrid>
         </DockPanel>
     </Viewbox>
 </Window>

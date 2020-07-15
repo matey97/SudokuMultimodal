@@ -113,6 +113,7 @@ namespace SudokuMultimodal
                     speechRecognitionService.RequestDisableRecognition();
                 }
             }
+            inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
 
         #region public
@@ -296,6 +297,24 @@ namespace SudokuMultimodal
             inkCanvas.EditingMode = InkCanvasEditingMode.None;
             speechRecognitionService.SpeechRecognized += SpeechRecognitionService_SpeechRecognized;
             speechRecognitionService.RequestEnableRecognition();
+        }
+
+        #endregion
+
+
+        #region Enable/Disable input methods (VoiceOnly)
+        public void EnableInputMethods()
+        {
+            UI.PreviewMouseDown += UI_MouseDown;
+            UI.PreviewMouseMove += UI_PreviewMouseMove;
+            UI.MouseUp += UI_MouseUp;
+        }
+
+        public void DisableInputMethods()
+        {
+            UI.PreviewMouseDown -= UI_MouseDown;
+            UI.PreviewMouseMove -= UI_PreviewMouseMove;
+            UI.MouseUp -= UI_MouseUp;
         }
 
         #endregion

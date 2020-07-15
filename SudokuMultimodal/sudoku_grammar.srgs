@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<grammar xmlns="http://www.w3.org/2001/06/grammar"
+         xml:lang="es-es"
+         tag-format="semantics/1.0"
+         version="1.0"
+         root="sudoku">
+
+  <rule id="sudoku">
+    <one-of>
+      <item><ruleref uri="#add_number"></ruleref></item>
+      <item><ruleref uri="#remove_number"></ruleref></item>
+      <item><ruleref uri="#new_sudoku"></ruleref></item>
+      <item><ruleref uri="#restart_sudoku"></ruleref></item>
+      <item><ruleref uri="#see_probable"></ruleref></item>
+      <item><ruleref uri="#hide_probable"></ruleref></item>
+    </one-of>
+  </rule>
+  
+  <rule id="add_number">
+    <example>pon un 5 en la fila A columna 7</example>
+    <example>añadir un 7 en B 8</example>
+    <example>poner un 1 en la posicíon 6 C</example>
+    
+    <one-of>
+      <item>pon</item>
+      <item>poner</item>
+      <item>añade</item>
+      <item>añadir</item>
+    </one-of>
+    un
+    <ruleref uri="#sudoku_number"></ruleref>
+    en
+    <ruleref uri="#position"></ruleref>
+
+    <tag>out.Number = rules.sudoku_number;</tag>
+    
+    <!-- No se porque, pero hay que poner tambien aquí estos tags para que funcione.
+         Es raro porque en el de remove_number no hace falta ¯\_(ツ)_/¯ -->
+    <tag>out.Row = rules.sudoku_row;</tag>
+    <tag>out.Column = rules.sudoku_column;</tag>
+  </rule>
+
+  <rule id="remove_number">
+    <example>elimina el numero de 9 D</example>
+    <example>quita el numero de la columna 7 fila B</example>
+      
+    <one-of>
+      <item>elimina</item>
+      <item>quita</item>
+    </one-of>
+    el numero de 
+    <ruleref uri="#position"></ruleref>
+  </rule>
+  
+  <rule id="position">
+    <example>la posición A 5</example>
+    <example>la columna 2 fila B</example>
+    <example>C 8</example>
+      
+    <one-of>
+      <item>la posicion <ruleref uri="#sudoku_row"></ruleref> <ruleref uri="#sudoku_column"></ruleref></item>
+      <item>la posicion <ruleref uri="#sudoku_column"></ruleref> <ruleref uri="#sudoku_row"></ruleref></item>
+      <item>la fila <ruleref uri="#sudoku_row"></ruleref> columna <ruleref uri="#sudoku_column"></ruleref></item>
+      <item>la columna <ruleref uri="#sudoku_column"></ruleref> fila <ruleref uri="#sudoku_row"></ruleref></item>
+      <item><ruleref uri="#sudoku_row"></ruleref> <ruleref uri="#sudoku_column"></ruleref></item>
+      <item><ruleref uri="#sudoku_column"></ruleref> <ruleref uri="#sudoku_row"></ruleref></item>
+    </one-of>
+
+    <tag>out.Row = rules.sudoku_row;</tag>
+    <tag>out.Column = rules.sudoku_column;</tag>
+  </rule>
+  
+  
+  <rule id="new_sudoku">
+    <example>inicia nueva partida</example>
+    <example>empieza nuevo sudoku de dificultad media</example>
+    <example>inicia nuevo sudoku dificil</example>
+      
+    <one-of>
+      <item>inicia</item>
+      <item>empieza</item>
+    </one-of>
+    <one-of>
+      <item>nuevo sudoku</item>
+      <item>nueva partida</item>
+    </one-of>
+    <item repeat="0-1">de dificultad</item>
+    <item repeat="0-1"><ruleref uri="#sudoku_level"></ruleref></item>
+    
+    <tag>out.NewSudoku = "true";</tag>
+    <tag>out.Level = rules.sudoku_level;</tag>
+  </rule>
+  
+  <rule id="restart_sudoku">
+    <example>reinicar</example>
+    <example>reinicar sudoku</example>
+    <example>volver a empezar</example>
+      
+    <one-of>
+      <item>reiniciar</item>
+      <item>volver a empezar</item>
+    </one-of>
+    <item repeat="0-1">sudoku</item>
+    <tag>out.Restart = "true";</tag>
+  </rule>
+  
+  <rule id="see_probable">
+    <example>ver numeros probables</example>
+    <example>muestrame los numeros posibles</example>
+      
+    <one-of>
+      <item>ver</item>
+      <item>mostrar</item>
+      <item>muestrame los</item>
+      <item>enseñame los</item>
+    </one-of>
+    numeros 
+    <one-of>
+      <item>probables</item>
+      <item>posibles</item> 
+    </one-of>
+    <tag>out.SeeProbable = "true";</tag>
+  </rule>
+  
+  <rule id="hide_probable">
+    <example>ocultar numeros probables</example>
+    <example>oculta los numeros probables</example>
+      
+    <one-of>
+      <item>ocultar</item>
+      <item>oculta los</item>
+      <item>quita los</item>
+    </one-of>
+    numeros probables
+    <tag>out.SeeProbable = "false";</tag>
+  </rule>
+
+  <rule id="sudoku_row">
+    <one-of>
+      <item>A</item>
+      <item>B</item>
+      <item>C</item>
+      <item>D</item>
+      <item>E</item>
+      <item>F</item>
+      <item>G</item>
+      <item>H</item>
+      <item>I</item>
+    </one-of>
+  </rule>
+  
+  <rule id="sudoku_column">
+    <one-of>
+      <item>1</item>
+      <item>2</item>
+      <item>3</item>
+      <item>4</item>
+      <item>5</item>
+      <item>6</item>
+      <item>7</item>
+      <item>8</item>
+      <item>9</item>
+    </one-of>
+  </rule>
+  
+  <rule id="sudoku_number">
+    <one-of>
+      <item>1</item>
+      <item>2</item>
+      <item>3</item>
+      <item>4</item>
+      <item>5</item>
+      <item>6</item>
+      <item>7</item>
+      <item>8</item>
+      <item>9</item>
+    </one-of>
+  </rule>
+
+  <rule id="sudoku_level">
+    <one-of>
+      <item>facil</item>
+      <item>media</item>
+      <item>dificil</item>
+    </one-of>
+  </rule>
+
+</grammar>

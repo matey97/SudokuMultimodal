@@ -66,11 +66,15 @@ namespace SudokuMultimodal
 
         private Grammar GetOnlyVoiceGrammar()
         {
-            throw new NotImplementedException();
+            if (onlyVoiceGrammar == null)
+                onlyVoiceGrammar = new Grammar("sudoku_grammar.srgs");
+
+            return onlyVoiceGrammar;
         }
 
         public void SetGrammar(GrammarType grammarType)
         {
+            speechRecognizer.UnloadAllGrammars();
             switch (grammarType)
             {
                 case GrammarType.MOUSE_VOICE:

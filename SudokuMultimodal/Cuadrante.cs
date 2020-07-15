@@ -77,5 +77,21 @@ namespace SudokuMultimodal
         readonly Celda[] _celdas = new Celda[Sudoku.Tamaño];
 
         #endregion
+
+        public void EnableInputMethodsInCells()
+        {
+            foreach (var cell in _celdas)
+            {
+                cell.EnableInputMethods();
+            }
+        }
+
+        public void DisableInputMethodsInCells()
+        {
+            foreach (var cell in _celdas)
+            {
+                cell.DisableInputMethods();
+            }
+        }
     }
 }
