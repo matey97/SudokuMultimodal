@@ -4,65 +4,90 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SudokuMultimodal"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d"
         Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470">
+
+    <Window.Resources>
+        <Storyboard x:Key="spinnerRotationStoryboard" Storyboard.TargetName="IM_Spinner" Storyboard.TargetProperty="RenderTransform.(RotateTransform.Angle)">
+            <DoubleAnimation From="0" To="360" BeginTime="0:0:0" Duration="0:0:2" RepeatBehavior="Forever" />
+        </Storyboard>
+    </Window.Resources>
+    
     <Viewbox Stretch="Uniform" Margin="10">
-        <DockPanel Name="dockPanel" Visibility="Visible">
-            <Grid Name="superGrid" DockPanel.Dock="Left" >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Row="1" Grid.Column="1" Name="mainGrid" Width="{Binding ElementName=mainGrid, Path=ActualHeight}"/>
-            </Grid>
-            <Grid DockPanel.Dock="Right">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
-                </Grid.RowDefinitions>
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
-                    <Button FontSize="30" Margin="10,10,0,10" Click="BotónNuevoClick">Nuevo</Button>
-                    <StackPanel HorizontalAlignment="Center" Margin="10">
-                        <TextBlock FontSize="30">Dificultad:</TextBlock>
-                        <RadioButton Margin="0,5,0,0" Name="RB_Easy" Checked="RadioButton_Checked">
-                            <RadioButton.LayoutTransform>
+        <Grid Name="topGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Image Name="IM_Spinner" Width="10" Height="30" Source="loading.png" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                <Image.Triggers>
+                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{StaticResource spinnerRotationStoryboard}" />
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                </Image.Triggers>
+                <Image.RenderTransform>
+                    <RotateTransform Angle="0" />
+                </Image.RenderTransform>
+            </Image>
+            <DockPanel Name="dockPanel" Visibility="Visible">
+                <Grid Name="superGrid" DockPanel.Dock="Left" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="1" Grid.Column="1" Name="mainGrid" Width="{Binding ElementName=mainGrid, Path=ActualHeight}"/>
+                </Grid>
+                <Grid DockPanel.Dock="Right">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Button FontSize="30" Margin="10,10,0,10" Click="BotónNuevoClick">Nuevo</Button>
+                        <StackPanel HorizontalAlignment="Center" Margin="10">
+                            <TextBlock FontSize="30">Dificultad:</TextBlock>
+                            <RadioButton Margin="0,5,0,0" Name="RB_Easy" Checked="RadioButton_Checked">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                                </RadioButton.LayoutTransform>
+                                Fácil
+                            </RadioButton >
+                            <RadioButton Margin="0,5,0,0" Name="RB_Med" IsChecked="true" Checked="RadioButton_Checked">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                                </RadioButton.LayoutTransform>
+                                Medio
+                            </RadioButton>
+                            <RadioButton Margin="0,5,0,0" Name="RB_Hard" Checked="RadioButton_Checked">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                                </RadioButton.LayoutTransform>
+                                Difícil
+                            </RadioButton>
+                        </StackPanel>
+                        <Button FontSize="30" Margin="10,10,0,10" Click="BotónReiniciarClick">Reiniciar</Button>
+                        <CheckBox Name="CB_VerPosibles" FontSize="15" Margin="10,10,0,10" Click="CheckboxVerPosiblesClick">
+                            <CheckBox.LayoutTransform>
                                 <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
-                            </RadioButton.LayoutTransform>
-                            Fácil
-                        </RadioButton >
-                        <RadioButton Margin="0,5,0,0" Name="RB_Med" IsChecked="true" Checked="RadioButton_Checked">
-                            <RadioButton.LayoutTransform>
-                                <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
-                            </RadioButton.LayoutTransform>
-                            Medio
-                        </RadioButton>
-                        <RadioButton Margin="0,5,0,0" Name="RB_Hard" Checked="RadioButton_Checked">
-                            <RadioButton.LayoutTransform>
-                                <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
-                            </RadioButton.LayoutTransform>
-                            Difícil
-                        </RadioButton>
+                            </CheckBox.LayoutTransform>
+                            Ver posibles
+                        </CheckBox>
                     </StackPanel>
-                    <Button FontSize="30" Margin="10,10,0,10" Click="BotónReiniciarClick">Reiniciar</Button>
-                    <CheckBox Name="CB_VerPosibles" FontSize="15" Margin="10,10,0,10" Click="CheckboxVerPosiblesClick">
+                    <CheckBox Grid.Row="1"  Name="CB_SoloVoz" FontSize="15" Margin="10,10,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="CB_SoloVoz_Click">
                         <CheckBox.LayoutTransform>
                             <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
                         </CheckBox.LayoutTransform>
-                        Ver posibles
+                        Solo Voz
                     </CheckBox>
-                </StackPanel>
-                <CheckBox Grid.Row="1"  Name="CB_SoloVoz" FontSize="15" Margin="10,10,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="CB_SoloVoz_Click">
-                    <CheckBox.LayoutTransform>
-                        <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
-                    </CheckBox.LayoutTransform>
-                    Solo Voz
-                </CheckBox>
-            </Grid>
+                </Grid>
 
-        </DockPanel>
+            </DockPanel>
+        </Grid>
     </Viewbox>
 </Window>

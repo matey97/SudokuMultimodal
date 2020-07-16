@@ -60,6 +60,7 @@ namespace SudokuMultimodal
 
             SetupHeaders();
             SetupVoiceOnly();
+            SetupSpinner();
 
             NuevaPartida();
         }
@@ -75,11 +76,10 @@ namespace SudokuMultimodal
 
         void NuevaPartida() //Mientras no cambiemos el constructor de Sudoku siempre es la misma partida
         {
+            ShowSpinner();
             _filaActual = _columnaActual = -1;
-            _s = new Sudoku(level);
-            _s.CeldaCambiada += CuandoCeldaCambiada;
-
-            ActualizarVistaSudoku();
+            _s = new Sudoku(level, SudokuLoaded);
+            
 
             //Copio a mano algunos números de la solución: el sudoku elegido es dificil ;)
             /*_s[0, 0] = 2;
@@ -89,6 +89,13 @@ namespace SudokuMultimodal
             _s[7, 1] = 4;
             _s[3, 2] = 6;
             _s[5, 6] = 9;*/
+        }
+
+        private void SudokuLoaded()
+        {
+            HideSpinner();
+            _s.CeldaCambiada += CuandoCeldaCambiada;
+            ActualizarVistaSudoku();
         }
 
         void ReiniciarPartida()
@@ -595,6 +602,44 @@ namespace SudokuMultimodal
                 quadrant.DisableInputMethodsInCells();
             }
         }
+        #endregion
+
+        #region Spinner
+
+        private void SetupSpinner()
+        {
+            /*RotateTransform rotateTransform = new RotateTransform()
+            {
+                CenterX = IM_Spinner.Width / 2,
+                CenterY = IM_Spinner.Height / 2
+            };
+            TransformGroup tg = new TransformGroup();
+            tg.Children.Add(rotateTransform);
+            IM_Spinner.RenderTransform = tg;
+
+            DoubleAnimation animation = new DoubleAnimation
+            {
+                Duration = new Duration(TimeSpan.FromSeconds(5)),
+                From = 0,
+                To = 360,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            rotateTransform.BeginAnimation(RotateTransform.AngleProperty, animation);*/
+        }
+       
+        private void ShowSpinner()
+        {
+            IM_Spinner.Visibility = Visibility.Visible;
+            dockPanel.Visibility = Visibility.Collapsed;
+
+        }
+
+        private void HideSpinner()
+        {
+            IM_Spinner.Visibility = Visibility.Collapsed;
+            dockPanel.Visibility = Visibility.Visible;
+        }
+
         #endregion
     }
 }

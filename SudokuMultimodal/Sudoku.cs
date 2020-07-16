@@ -34,7 +34,7 @@ namespace SudokuMultimodal
             }
         }
 
-        public Sudoku(SudokuLevel level)
+        public Sudoku(SudokuLevel level, Action SudokuLoaded)
         {
             CeldaCambiada += (fila, col, num) => { };
 
@@ -44,41 +44,19 @@ namespace SudokuMultimodal
                 client.BaseAddress = new Uri(BASE_URI);
             }
 
-            _números = GetNewSudoku(level);
-            
-            /*_números = new int[Tamaño, Tamaño] { 
-                {0,7,4,0,8,0,5,0,0},
-                {0,0,3,0,7,0,0,0,4},
-                {6,0,0,0,0,0,0,3,1},
-                {0,0,0,9,0,2,0,0,0},
-                {4,9,0,0,0,0,0,2,6},
-                {0,0,0,5,0,6,0,0,0},
-                {5,3,0,0,0,0,0,0,7},
-                {8,0,0,0,6,0,1,0,0},
-                {0,0,2,0,5,0,8,4,0},
-            };*/
+            var downloadTask = Task.Factory.StartNew(() =>
+            {
+                _números = GetNewSudoku(level);
+            });
 
-            esInicial = new bool[Tamaño, Tamaño];
-            for (int f = 0; f < Tamaño; ++f)
-                for (int c = 0; c < Tamaño; ++c)
-                    esInicial[f, c] = _números[f, c] > 0;
-
-            /* //Comprueba FilaColumnaACuadrantePosicion y CuadrantePosicionAFilaColumna
-            for (int i = 0; i < Tamaño/3; ++i)
-                for (int j = 0; j < Tamaño/3; ++j)
-                {
-                    int c, p;
-                    FilaColumnaACuadrantePosicion(i, j, out c, out p);
-                    int i2, j2;
-                    CuadrantePosicionAFilaColumna(c, p, out i2, out j2);
-                    if (i != i2 || j != j2)
-                        Console.WriteLine("ERROR");
-                    //Console.WriteLine(string.Format("{0},{1} => {2},{3} => {4},{5}", i, j, c, p, i2, j2));
-                }
-            */
-            Console.WriteLine("------------------");
-            foreach (var item in PosiblesEnCelda(4, 4))
-                Console.WriteLine(item);
+            downloadTask.ContinueWith(new Action<Task>((t) =>
+            {
+                esInicial = new bool[Tamaño, Tamaño];
+                for (int f = 0; f < Tamaño; ++f)
+                    for (int c = 0; c < Tamaño; ++c)
+                        esInicial[f, c] = _números[f, c] > 0;
+                SudokuLoaded();
+            }), TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private int[,] GetNewSudoku(SudokuLevel level)
