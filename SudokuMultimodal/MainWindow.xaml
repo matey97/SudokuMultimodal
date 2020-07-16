@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470">
     <Viewbox Stretch="Uniform" Margin="10">
-        <DockPanel>
+        <DockPanel Name="dockPanel" Visibility="Visible">
             <Grid Name="superGrid" DockPanel.Dock="Left" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"></RowDefinition>
@@ -19,9 +19,34 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Row="1" Grid.Column="1" Name="mainGrid" Width="{Binding ElementName=mainGrid, Path=ActualHeight}"/>
             </Grid>
-            <UniformGrid Rows="2" DockPanel.Dock="Right">
+            <Grid DockPanel.Dock="Right">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" >
                     <Button FontSize="30" Margin="10,10,0,10" Click="BotónNuevoClick">Nuevo</Button>
+                    <StackPanel HorizontalAlignment="Center" Margin="10">
+                        <TextBlock FontSize="30">Dificultad:</TextBlock>
+                        <RadioButton Margin="0,5,0,0" Name="RB_Easy" Checked="RadioButton_Checked">
+                            <RadioButton.LayoutTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                            </RadioButton.LayoutTransform>
+                            Fácil
+                        </RadioButton >
+                        <RadioButton Margin="0,5,0,0" Name="RB_Med" IsChecked="true" Checked="RadioButton_Checked">
+                            <RadioButton.LayoutTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                            </RadioButton.LayoutTransform>
+                            Medio
+                        </RadioButton>
+                        <RadioButton Margin="0,5,0,0" Name="RB_Hard" Checked="RadioButton_Checked">
+                            <RadioButton.LayoutTransform>
+                                <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
+                            </RadioButton.LayoutTransform>
+                            Difícil
+                        </RadioButton>
+                    </StackPanel>
                     <Button FontSize="30" Margin="10,10,0,10" Click="BotónReiniciarClick">Reiniciar</Button>
                     <CheckBox Name="CB_VerPosibles" FontSize="15" Margin="10,10,0,10" Click="CheckboxVerPosiblesClick">
                         <CheckBox.LayoutTransform>
@@ -30,13 +55,14 @@
                         Ver posibles
                     </CheckBox>
                 </StackPanel>
-                <CheckBox Name="CB_SoloVoz" FontSize="15" Margin="10,10,0,10" VerticalAlignment="Center" Click="CB_SoloVoz_Click">
+                <CheckBox Grid.Row="1"  Name="CB_SoloVoz" FontSize="15" Margin="10,10,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="CB_SoloVoz_Click">
                     <CheckBox.LayoutTransform>
                         <ScaleTransform ScaleX="2" ScaleY="2"></ScaleTransform>
                     </CheckBox.LayoutTransform>
                     Solo Voz
                 </CheckBox>
-            </UniformGrid>
+            </Grid>
+
         </DockPanel>
     </Viewbox>
 </Window>

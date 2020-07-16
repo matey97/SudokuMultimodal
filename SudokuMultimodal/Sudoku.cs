@@ -1,15 +1,26 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SudokuMultimodal
 {
+    public enum SudokuLevel { EASY=1, MEDIUM=2, HARD=3};
     public class Sudoku
     {
         public event Action<int, int, int> CeldaCambiada; //fila, columna, nuevoNúmero
 
+        private const string BASE_URI = "http://www.cs.utep.edu/cheon/ws/sudoku/new/";
+        private const string PARAMS = "?size=9&level={0}";
         public const int Tamaño = 9;
+
+        private HttpClient client;
+
 
         public int this[int fil, int col]
         {
@@ -23,10 +34,19 @@ namespace SudokuMultimodal
             }
         }
 
-        public Sudoku()
+        public Sudoku(SudokuLevel level)
         {
             CeldaCambiada += (fila, col, num) => { };
-            _números = new int[Tamaño, Tamaño] { 
+
+            if (client == null)
+            {
+                client = new HttpClient();
+                client.BaseAddress = new Uri(BASE_URI);
+            }
+
+            _números = GetNewSudoku(level);
+            
+            /*_números = new int[Tamaño, Tamaño] { 
                 {0,7,4,0,8,0,5,0,0},
                 {0,0,3,0,7,0,0,0,4},
                 {6,0,0,0,0,0,0,3,1},
@@ -36,7 +56,7 @@ namespace SudokuMultimodal
                 {5,3,0,0,0,0,0,0,7},
                 {8,0,0,0,6,0,1,0,0},
                 {0,0,2,0,5,0,8,4,0},
-            };
+            };*/
 
             esInicial = new bool[Tamaño, Tamaño];
             for (int f = 0; f < Tamaño; ++f)
@@ -61,8 +81,31 @@ namespace SudokuMultimodal
                 Console.WriteLine(item);
         }
 
+        private int[,] GetNewSudoku(SudokuLevel level)
+        {
+            var request = client.GetAsync(string.Format(PARAMS, (int)level));
+            request.Wait();
+
+            var response = request.Result;
+            response.EnsureSuccessStatusCode();
+
+            var jsonStringAsync = response.Content.ReadAsStringAsync();
+            jsonStringAsync.Wait();
+
+            var jsonString = jsonStringAsync.Result;
+            var sudokuNumbers = JObject.Parse(jsonString)["squares"];
+
+            var numbers = new int[Tamaño, Tamaño];
+            foreach (var number in sudokuNumbers)
+            {
+                numbers[(int)number["y"], (int)number["x"]] = (int)number["value"];
+            }
+
+            return numbers;
+        }
+
         #region public
-        
+
         public List<int> PosiblesEnCelda(int fila, int col)
         {
             List<int> res = new List<int>();

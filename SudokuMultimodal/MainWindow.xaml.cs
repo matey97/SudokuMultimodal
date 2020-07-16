@@ -14,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -41,6 +42,7 @@ namespace SudokuMultimodal
         UniformGrid _ug;
         int _filaActual, _columnaActual;
         bool mostrarPosibles;
+        SudokuLevel level;
 
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -62,22 +64,31 @@ namespace SudokuMultimodal
             NuevaPartida();
         }
 
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            level = RB_Easy.IsChecked == true ? 
+                        SudokuLevel.EASY : 
+                        RB_Med.IsChecked == true ? 
+                            SudokuLevel.MEDIUM : 
+                            SudokuLevel.HARD;
+        }
+
         void NuevaPartida() //Mientras no cambiemos el constructor de Sudoku siempre es la misma partida
         {
             _filaActual = _columnaActual = -1;
-            _s = new Sudoku();
+            _s = new Sudoku(level);
             _s.CeldaCambiada += CuandoCeldaCambiada;
 
             ActualizarVistaSudoku();
 
             //Copio a mano algunos números de la solución: el sudoku elegido es dificil ;)
-            _s[0, 0] = 2;
+            /*_s[0, 0] = 2;
             _s[4, 4] = 1;
             _s[7, 7] = 5;
             _s[1, 7] = 8;
             _s[7, 1] = 4;
             _s[3, 2] = 6;
-            _s[5, 6] = 9;
+            _s[5, 6] = 9;*/
         }
 
         void ReiniciarPartida()
@@ -584,8 +595,6 @@ namespace SudokuMultimodal
                 quadrant.DisableInputMethodsInCells();
             }
         }
-
-
         #endregion
     }
 }
