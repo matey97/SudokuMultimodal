@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SudokuMultimodal
@@ -14,12 +13,15 @@ namespace SudokuMultimodal
     public class Sudoku
     {
         public event Action<int, int, int> CeldaCambiada; //fila, columna, nuevoNúmero
+        public event Action SudokuSolved;
+        public event Action SudokuWrong;
 
         private const string BASE_URI = "http://www.cs.utep.edu/cheon/ws/sudoku/new/";
         private const string PARAMS = "?size=9&level={0}";
         public const int Tamaño = 9;
 
         private HttpClient client;
+        private int remainingNumbers = 81;
 
 
         public int this[int fil, int col]
@@ -29,8 +31,17 @@ namespace SudokuMultimodal
             {
                 if (esInicial[fil, col])
                     return; //los iniciales no se pueden cambiar
+
+                if (_números[fil, col] == 0 && value != 0)
+                    remainingNumbers--;
+                else if (_números[fil, col] != 0 && value == 0)
+                    remainingNumbers++;
+
                 _números[fil, col] = value;
                 CeldaCambiada(fil, col, value);
+
+                if (remainingNumbers == 0)
+                    CheckSudoku();
             }
         }
 
@@ -77,6 +88,7 @@ namespace SudokuMultimodal
             foreach (var number in sudokuNumbers)
             {
                 numbers[(int)number["y"], (int)number["x"]] = (int)number["value"];
+                remainingNumbers--;
             }
 
             return numbers;
@@ -132,6 +144,73 @@ namespace SudokuMultimodal
 
         int[,] _números;
         bool[,] esInicial;
+
+        private void CheckSudoku()
+        {
+            if (AreValidRows() && AreValidColumns() && AreValidQuadrants())
+                SudokuSolved?.Invoke();
+            else
+                SudokuWrong?.Invoke();
+        }
+
+        private bool AreValidRows()
+        {
+            HashSet<int> rowSet; // Contains mas barato que en lista.
+            int currentNumber;
+            for (var row = 0; row < Tamaño; row++)
+            {
+                rowSet = new HashSet<int>();
+                for (var col = 0; col < Tamaño; col++)
+                {
+                    currentNumber = _números[row, col];
+                    if (rowSet.Contains(currentNumber))
+                        return false;
+                    rowSet.Add(currentNumber);
+                }
+            }
+
+            return true;
+        }
+
+        private bool AreValidColumns()
+        {
+            HashSet<int> colSet; // Contains mas barato que en lista.
+            int currentNumber;
+            for (var col = 0; col < Tamaño; col++)
+            {
+                colSet = new HashSet<int>();
+                for (var row = 0; row < Tamaño; row++)
+                {
+                    currentNumber = _números[row, col];
+                    if (colSet.Contains(currentNumber))
+                        return false;
+                    colSet.Add(currentNumber);
+                }
+            }
+
+            return true;
+        }
+
+        private bool AreValidQuadrants()
+        {
+            HashSet<int> quadrantSet;
+            int currentNumber, row, col;
+
+            for (var quad = 0; quad < Tamaño; quad++)
+            {
+                quadrantSet = new HashSet<int>();
+                for (var pos = 0; pos < Tamaño; pos++)
+                {
+                    CuadrantePosicionAFilaColumna(quad, pos, out row, out col);
+                    currentNumber = _números[row, col];
+                    if (quadrantSet.Contains(currentNumber))
+                        return false;
+                    quadrantSet.Add(currentNumber);
+                }
+            }
+
+            return true;
+        }
 
         #endregion
     }

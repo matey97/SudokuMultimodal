@@ -60,7 +60,6 @@ namespace SudokuMultimodal
 
             SetupHeaders();
             SetupVoiceOnly();
-            SetupSpinner();
 
             NuevaPartida();
         }
@@ -95,7 +94,23 @@ namespace SudokuMultimodal
         {
             HideSpinner();
             _s.CeldaCambiada += CuandoCeldaCambiada;
+            _s.SudokuSolved += _s_SudokuSolved;
+            _s.SudokuWrong += _s_SudokuWrong;
             ActualizarVistaSudoku();
+        }
+
+        private void _s_SudokuSolved()
+        {
+            var result = MessageBox.Show("Enhorabuena, Sudoku Completado!\n¿Deseas iniciar una nueva partida?", "Sudoku Multimodal", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            
+            if (result == MessageBoxResult.Yes)
+                NuevaPartida();
+        }
+
+
+        private void _s_SudokuWrong()
+        {
+            MessageBox.Show("Ups! El sudoku es incorrecto", "Sudoku Multimodal", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         void ReiniciarPartida()
@@ -506,7 +521,7 @@ namespace SudokuMultimodal
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin = margin
                 });
-
+            
             return uniformGrid;
         }
 
@@ -605,27 +620,6 @@ namespace SudokuMultimodal
         #endregion
 
         #region Spinner
-
-        private void SetupSpinner()
-        {
-            /*RotateTransform rotateTransform = new RotateTransform()
-            {
-                CenterX = IM_Spinner.Width / 2,
-                CenterY = IM_Spinner.Height / 2
-            };
-            TransformGroup tg = new TransformGroup();
-            tg.Children.Add(rotateTransform);
-            IM_Spinner.RenderTransform = tg;
-
-            DoubleAnimation animation = new DoubleAnimation
-            {
-                Duration = new Duration(TimeSpan.FromSeconds(5)),
-                From = 0,
-                To = 360,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
-            rotateTransform.BeginAnimation(RotateTransform.AngleProperty, animation);*/
-        }
        
         private void ShowSpinner()
         {
