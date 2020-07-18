@@ -48,6 +48,7 @@
     <one-of>
       <item>elimina</item>
       <item>quita</item>
+      <item>borra</item>
     </one-of>
     el numero de 
     <ruleref uri="#position"></ruleref>
@@ -132,7 +133,11 @@
       <item>oculta los</item>
       <item>quita los</item>
     </one-of>
-    numeros probables
+    numeros
+    <one-of>
+      <item>probables</item>
+      <item>posibles</item>
+    </one-of>
     <tag>out.SeeProbable = "false";</tag>
   </rule>
 

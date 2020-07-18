@@ -317,7 +317,7 @@ namespace SudokuMultimodal
         {
             //Cuando se presiona una flecha de dirección se mueve la celda seleccionada, 
             // se desactiva el movimiento y se activa el timer que se encarga de volver a activar el movimiento
-            if (isMovingEnabled)
+            if (isMovingEnabled && (state.Up || state.Left || state.Right || state.Down))
             {
                 timerEnabler.Start();
                 if (state.Up && _filaActual > 0)
@@ -470,7 +470,7 @@ namespace SudokuMultimodal
 
         #region OnlyVoice
         private const string TOP_HEADER = "123456789", LEFT_HEADER = "ABCDEFGHI";
-        private const string NEW_KEY = "NewSudoku", RESTART_KEY = "Restart", PROBABLE_KEY = "SeeProbable", NUMBER_KEY = "Number";
+        private const string NEW_KEY = "NewSudoku", RESTART_KEY = "Restart", PROBABLE_KEY = "SeeProbable", NUMBER_KEY = "Number", LEVEL_KEY = "Level";
 
         private SpeechRecognitionService speechRecognitionService = SpeechRecognitionService.GetInstance();
         private UniformGrid topHeader, leftHeader;
@@ -529,7 +529,24 @@ namespace SudokuMultimodal
             SemanticValue semantics = e.Result.Semantics;
 
             if (semantics.ContainsKey(NEW_KEY))
+            {
+                if (semantics.ContainsKey(LEVEL_KEY))
+                {
+                    switch (semantics[LEVEL_KEY].Value.ToString())
+                    {
+                        case "facil":
+                            RB_Easy.IsChecked = true;
+                            break;
+                        case "media":
+                            RB_Med.IsChecked = true;
+                            break;
+                        case "dificil":
+                            RB_Hard.IsChecked = true;
+                            break;
+                    }
+                }
                 NuevaPartida();
+            } 
             else if (semantics.ContainsKey(RESTART_KEY))
                 ReiniciarPartida();
             else if (semantics.ContainsKey(PROBABLE_KEY))

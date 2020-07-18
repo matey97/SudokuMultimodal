@@ -301,7 +301,6 @@ namespace SudokuMultimodal
 
         #endregion
 
-
         #region Enable/Disable input methods (VoiceOnly)
         public void EnableInputMethods()
         {
