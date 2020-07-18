@@ -55,11 +55,8 @@ namespace SudokuMultimodal
 
             SetupUdpmote();
             SetupNumbersPopup();
-
-            SpeechRecognitionService.GetInstance().SetGrammar(GrammarType.MOUSE_VOICE);
-
             SetupHeaders();
-            SetupVoiceOnly();
+            SpeechRecognitionService.GetInstance().SetGrammar(GrammarType.MOUSE_VOICE);
 
             NuevaPartida();
         }
@@ -73,21 +70,11 @@ namespace SudokuMultimodal
                             SudokuLevel.HARD;
         }
 
-        void NuevaPartida() //Mientras no cambiemos el constructor de Sudoku siempre es la misma partida
+        void NuevaPartida()
         {
             ShowSpinner();
             _filaActual = _columnaActual = -1;
             _s = new Sudoku(level, SudokuLoaded);
-            
-
-            //Copio a mano algunos números de la solución: el sudoku elegido es dificil ;)
-            /*_s[0, 0] = 2;
-            _s[4, 4] = 1;
-            _s[7, 7] = 5;
-            _s[1, 7] = 8;
-            _s[7, 1] = 4;
-            _s[3, 2] = 6;
-            _s[5, 6] = 9;*/
         }
 
         private void SudokuLoaded()
@@ -537,14 +524,8 @@ namespace SudokuMultimodal
             superGrid.Children.Remove(leftHeader);
         }
 
-        private void SetupVoiceOnly()
-        {
-            speechRecognitionService.SpeechRecognized += SpeechRecognitionService_SpeechRecognized;
-        }
-
         private void SpeechRecognitionService_SpeechRecognized(System.Speech.Recognition.SpeechRecognizedEventArgs e)
         {
-            Console.WriteLine(e.Result.Text);
             SemanticValue semantics = e.Result.Semantics;
 
             if (semantics.ContainsKey(NEW_KEY))
@@ -553,7 +534,6 @@ namespace SudokuMultimodal
                 ReiniciarPartida();
             else if (semantics.ContainsKey(PROBABLE_KEY))
             {
-
                 CB_VerPosibles.IsChecked = mostrarPosibles = bool.Parse(semantics[PROBABLE_KEY].Value.ToString());
                 ActualizaPosibles();
             } else
@@ -576,12 +556,14 @@ namespace SudokuMultimodal
             if (CB_SoloVoz.IsChecked == true)
             {
                 speechRecognitionService.SetGrammar(GrammarType.ONLY_VOICE);
+                speechRecognitionService.SpeechRecognized += SpeechRecognitionService_SpeechRecognized;
                 speechRecognitionService.RequestEnableRecognition();
                 ShowHeaders();
                 DisableOtherInputMethods();
             } else
             {
                 speechRecognitionService.RequestDisableRecognition();
+                speechRecognitionService.SpeechRecognized -= SpeechRecognitionService_SpeechRecognized;
                 speechRecognitionService.SetGrammar(GrammarType.MOUSE_VOICE);
                 HideHeaders();
                 EnableOtherInputMethods();
