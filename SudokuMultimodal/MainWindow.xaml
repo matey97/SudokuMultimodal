@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SudokuMultimodal"
         mc:Ignorable="d"
-        Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470">
+        Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470" Icon="sudoku.ico" >
 
     <Window.Resources>
         <Storyboard x:Key="spinnerRotationStoryboard" Storyboard.TargetName="IM_Spinner" Storyboard.TargetProperty="RenderTransform.(RotateTransform.Angle)">

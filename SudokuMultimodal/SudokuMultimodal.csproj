@@ -133,5 +133,10 @@
   <ItemGroup>
     <Resource Include="loading.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="sudoku.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
