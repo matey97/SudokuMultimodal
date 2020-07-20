@@ -317,7 +317,7 @@ namespace SudokuMultimodal
         {
             //Cuando se presiona una flecha de dirección se mueve la celda seleccionada, 
             // se desactiva el movimiento y se activa el timer que se encarga de volver a activar el movimiento
-            if (isMovingEnabled && (state.Up || state.Left || state.Right || state.Down))
+            if (isMovingEnabled && (state.Up || state.Left || state.Right || state.Down || state.Minus || state.Plus))
             {
                 timerEnabler.Start();
                 if (state.Up && _filaActual > 0)
@@ -328,6 +328,25 @@ namespace SudokuMultimodal
                     PonSelecciónEn(_filaActual, _columnaActual - 1);
                 else if (state.Right && _columnaActual < Sudoku.Tamaño - 1)
                     PonSelecciónEn(_filaActual, _columnaActual + 1);
+
+                if (state.Minus)
+                {
+                    _ = RB_Med.IsChecked == true ?
+                        RB_Easy.IsChecked = true :
+                        RB_Hard.IsChecked == true ?
+                            RB_Med.IsChecked = true :
+                            RB_Easy.IsChecked = true;
+                }
+
+                if (state.Plus)
+                {
+                    _ = RB_Med.IsChecked == true ?
+                        RB_Hard.IsChecked = true :
+                        RB_Easy.IsChecked == true ?
+                            RB_Med.IsChecked = true :
+                            RB_Hard.IsChecked = true;
+                }
+
                 isMovingEnabled = false;
             }  
         }
@@ -340,7 +359,6 @@ namespace SudokuMultimodal
         private void HandleGesture(string gestureName)
         {
             var isNumeric = int.TryParse(gestureName, out int number);
-            Console.WriteLine(gestureName);
             if (isNumeric)
             {
                 _s[_filaActual, _columnaActual] = number;
@@ -373,7 +391,7 @@ namespace SudokuMultimodal
         #region OnlyMouse(Popup)
         private const int RADIUS = 46;
         private const int ANGLE_SEPARATION = 36; // 360º/10
-        private const int ANGLE_OFFSET = 180;
+        private const int ANGLE_OFFSET = 180; 
 
         private Popup numbersPopup = new Popup()
         {
