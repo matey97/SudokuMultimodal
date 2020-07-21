@@ -49,6 +49,7 @@ namespace SudokuMultimodal
             recognitionFailed.Play();
         }
 
+        // Crea la gramática para Raton+Voz si es necesario
         private Grammar GetMouseAndVoiceGrammar()
         {
             if (mouseAndVoiceGrammar == null)
@@ -64,6 +65,7 @@ namespace SudokuMultimodal
             return mouseAndVoiceGrammar;
         }
 
+        // Carga la gramática para Solo Voz si es necesario
         private Grammar GetOnlyVoiceGrammar()
         {
             if (onlyVoiceGrammar == null)
@@ -72,6 +74,7 @@ namespace SudokuMultimodal
             return onlyVoiceGrammar;
         }
 
+        // Los clientes solicitan la gramática que necesitan
         public void SetGrammar(GrammarType grammarType)
         {
             speechRecognizer.UnloadAllGrammars();

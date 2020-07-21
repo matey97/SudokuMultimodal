@@ -13,8 +13,8 @@ namespace SudokuMultimodal
     public class Sudoku
     {
         public event Action<int, int, int> CeldaCambiada; //fila, columna, nuevoNúmero
-        public event Action SudokuSolved;
-        public event Action SudokuWrong;
+        public event Action SudokuSolved; // Evento que se lanza cuando el sudoku se ha completado correctamente
+        public event Action SudokuWrong; // Evento que se lanza cuando el sudoku se ha completado incorrectamente
 
         private const string BASE_URI = "http://www.cs.utep.edu/cheon/ws/sudoku/new/";
         private const string PARAMS = "?size=9&level={0}";
@@ -40,6 +40,7 @@ namespace SudokuMultimodal
                 _números[fil, col] = value;
                 CeldaCambiada(fil, col, value);
 
+                // Cuando todo el sudoku esta rellenado, se comprueba la solución
                 if (remainingNumbers == 0)
                     CheckSudoku();
             }
@@ -49,17 +50,20 @@ namespace SudokuMultimodal
         {
             CeldaCambiada += (fila, col, num) => { };
 
+            // Se crea el cliente HTTP si es necesario
             if (client == null)
             {
                 client = new HttpClient();
                 client.BaseAddress = new Uri(BASE_URI);
             }
 
+            // Se solicita un nuevo sudoku al servicio en un nuevo hilo en segundo plano
             var downloadTask = Task.Factory.StartNew(() =>
             {
                 _números = GetNewSudoku(level);
             });
 
+            // Cuando la tarea anterior finalice, se ejecuta el resto del código y se avisa MainWindow que el sudoku está listo
             downloadTask.ContinueWith(new Action<Task>((t) =>
             {
                 esInicial = new bool[Tamaño, Tamaño];
@@ -70,8 +74,11 @@ namespace SudokuMultimodal
             }), TaskScheduler.FromCurrentSynchronizationContext());
         }
 
+
         private int[,] GetNewSudoku(SudokuLevel level)
         {
+            // Realiza la petición de un nuevo sudoku y espera a su recepción
+            // Intenté hacerlo con async/await pero no conseguí hacerlo funcionar
             var request = client.GetAsync(string.Format(PARAMS, (int)level));
             request.Wait();
 
@@ -145,6 +152,7 @@ namespace SudokuMultimodal
         int[,] _números;
         bool[,] esInicial;
 
+        // Comprueba si las filas, las columnas y los cuadrantes son correctos según las reglas del sudoku
         private void CheckSudoku()
         {
             if (AreValidRows() && AreValidColumns() && AreValidQuadrants())

@@ -77,6 +77,7 @@ namespace SudokuMultimodal
             _s = new Sudoku(level, SudokuLoaded);
         }
 
+        // Método que llama el sudoku cuando esta listo
         private void SudokuLoaded()
         {
             HideSpinner();
@@ -262,7 +263,7 @@ namespace SudokuMultimodal
         private GestureRecognizer gestureRecognizer;
         private System.Timers.Timer timerEnabler;
 
-        private bool isMovingEnabled = true;
+        private bool areButtonsEnabled = true;
 
 
         private void SetupUdpmote()
@@ -271,15 +272,13 @@ namespace SudokuMultimodal
             gestureCapturer = new GestureCapturer();
             gestureRecognizer = new GestureRecognizer();
 
-            //Enlazamos eventos
+            // Enlazamos eventos de udpmote, capturador y reconocedor
             udpmote.UdpmoteChanged += Udpmote_UdpmoteChanged;
             udpmote.UdpmoteChanged += gestureCapturer.OnUdpmoteChanged;
             gestureCapturer.GestureCaptured += gestureRecognizer.OnGestureCaptured;
             gestureRecognizer.GestureRecognized += GestureRecognizer_GestureRecognized;
 
             LoadGestures();
-
-            // Este timer evita que la celda seleccionada se desplace varias veces con una única pulsación
             SetupTimerEnabler();
 
             udpmote.Connect();
@@ -305,7 +304,7 @@ namespace SudokuMultimodal
         private void TimerEnabler_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             timerEnabler.Stop();
-            isMovingEnabled = true;
+            areButtonsEnabled = true;
         }
 
         private void Udpmote_UdpmoteChanged(UdpmoteState state)
@@ -315,9 +314,10 @@ namespace SudokuMultimodal
 
         private void CheckUdpmoteButtons(ButtonState state)
         {
-            //Cuando se presiona una flecha de dirección se mueve la celda seleccionada, 
-            // se desactiva el movimiento y se activa el timer que se encarga de volver a activar el movimiento
-            if (isMovingEnabled && (state.Up || state.Left || state.Right || state.Down || state.Minus || state.Plus))
+            // Cuando se presiona una flecha de dirección o los botones +/- 
+            // se "desactivan" los botones y se inicia el timer que se encarga de volver a "activar" los botones.
+            // Esto evita que la selección de la celda se mueva varias veces o la dificultad aumente/disminuya varias veces con una sola pulsación.
+            if (areButtonsEnabled && (state.Up || state.Left || state.Right || state.Down || state.Minus || state.Plus))
             {
                 timerEnabler.Start();
                 if (state.Up && _filaActual > 0)
@@ -347,7 +347,7 @@ namespace SudokuMultimodal
                             RB_Hard.IsChecked = true;
                 }
 
-                isMovingEnabled = false;
+                areButtonsEnabled = false;
             }  
         }
 
@@ -390,8 +390,8 @@ namespace SudokuMultimodal
 
         #region OnlyMouse(Popup)
         private const int RADIUS = 46;
-        private const int ANGLE_SEPARATION = 36; // 360º/10
-        private const int ANGLE_OFFSET = 180; 
+        private const int ANGLE_SEPARATION = 36; // 360º / 10 opciones
+        private const int ANGLE_OFFSET = 180; // Por como funcionan las coordenadas en el canvas, se aplica este offset para que el rosco quede bien ordenado
 
         private Popup numbersPopup = new Popup()
         {
@@ -399,8 +399,8 @@ namespace SudokuMultimodal
             Height = 122,
             IsOpen = false,
             AllowsTransparency = true,
-            PopupAnimation = PopupAnimation.Fade,
-            Placement = PlacementMode.Center //Magia
+            PopupAnimation = PopupAnimation.None,
+            Placement = PlacementMode.Center // El popup queda centrado con el elemento target, parece magia.
         };
         private Canvas numbersCanvas = new Canvas()
         {
@@ -408,6 +408,9 @@ namespace SudokuMultimodal
             Height = 122
         };
 
+        // Crea el rosco de numeros:
+        // El rosco esta formado por elipses y bloques de texto
+        // Hay que suscribirse al MouseDown tanto de las elipses como de los bloques de texto
         private void SetupNumbersPopup()
         {
             Ellipse number;
@@ -470,6 +473,7 @@ namespace SudokuMultimodal
             _s[_filaActual, _columnaActual] = int.Parse(result);
         }
 
+        // Dado un ángulo, devuelve las coordenadas correspondientes en la circunferencia del círculo
         private (double, double) GetNumberCoordinates(int i)
         {
             double x = Math.Cos((Math.PI / 180) * (ANGLE_SEPARATION * -i + ANGLE_OFFSET)) * RADIUS;
@@ -478,6 +482,8 @@ namespace SudokuMultimodal
             return (x + RADIUS, y + RADIUS);
         }
 
+        // Las casillas emplean este método para solicitar que se abra el popup sobre ellas
+        // El método recibe la casilla seleccionada y hace que sea el target del popup
         private void RequestNumbersPopup(UIElement element)
         {
             numbersPopup.PlacementTarget = element;
@@ -493,6 +499,8 @@ namespace SudokuMultimodal
         private SpeechRecognitionService speechRecognitionService = SpeechRecognitionService.GetInstance();
         private UniformGrid topHeader, leftHeader;
 
+        // Crea los headers con las coordenadas de las casillas de los sudokus
+        // Se muestran solo cuando el modo Solo Voz se activa
         private void SetupHeaders()
         {
             topHeader = CreateHeader("TOP");
@@ -586,6 +594,8 @@ namespace SudokuMultimodal
             }
         }
 
+        // Cuando se activa el modo Solo Voz, muestra los headers, se carga la gramática adecuada en el reconocedor, se suscribe, solicita activar el reconocimientos y desactiva el resto de modos de entrada
+        // Cuando se desactiva el modo Solo Voz, oculta los headers, se deteniene el reconocimiento, se desuscribe, carga la gramática anterior, activa el resto de modos de entrada.
         private void CB_SoloVoz_Click(object sender, RoutedEventArgs e)
         {
             if (CB_SoloVoz.IsChecked == true)
@@ -638,6 +648,7 @@ namespace SudokuMultimodal
 
         #region Spinner
        
+        // Tanto la carga del spinner como su animación se encuentran en el xaml
         private void ShowSpinner()
         {
             IM_Spinner.Visibility = Visibility.Visible;

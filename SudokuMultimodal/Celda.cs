@@ -69,6 +69,8 @@ namespace SudokuMultimodal
                 ForzarPonerNúmero(número);
         }
 
+        // Cuando se presiona el botón izquierdo se activa el timer de Raton+Voz y el modo edición del inkCanvas
+        // Cuando se presiona el botón derecho se solicita el popup en la casilla correspondiente
         void UI_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (!EstáSeleccionada)
@@ -86,6 +88,7 @@ namespace SudokuMultimodal
                 _requestNumbersPopup(UI);
         }
 
+        // Cuando el raton se mueve mientras tiene pulsado el botón izquierdo, detiene el timer de activación del modo Raton+Voz
         private Point lastPoint;
         private void UI_PreviewMouseMove(object sender, MouseEventArgs e)
         {
@@ -98,6 +101,8 @@ namespace SudokuMultimodal
             lastPoint = point;
         }
 
+        // Cuando se levanta el botón izquierdo se para el timer de activación del modo Raton+Voz si no se había activado aún. 
+        // En caso de que ya se hubiese activado, se desactiva el reconocimiento de voz.
         private void UI_MouseUp(object sender, MouseButtonEventArgs e)
         {
             var leftButton = e.MouseDevice.LeftButton;
@@ -185,7 +190,7 @@ namespace SudokuMultimodal
 
         private InkCanvas inkCanvas = new InkCanvas
         {
-            Background = Brushes.Transparent,
+            Background = Brushes.Transparent, // Transparente para que los numeros posibles puedan verse
             MinHeight = 0.0,
             MinWidth = 0.0,
             EditingMode = InkCanvasEditingMode.None
@@ -201,6 +206,7 @@ namespace SudokuMultimodal
             inkCanvas.MouseMove += InkCanvas_MouseMove;
         }
 
+        // Se produce el reconocimento al dispararse el timer
         private void Timer_Tick(object sender, EventArgs e)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -253,6 +259,7 @@ namespace SudokuMultimodal
             timer.Stop();
         }
 
+        // Mientas el ratón se mueva por el inkcanvas con el botón izquierdo presionado se va reiniciando el timer
         private void InkCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -262,6 +269,7 @@ namespace SudokuMultimodal
             }
         }
 
+        // Se comprueba que sea un número valido (1-9) o una x para borrar
         private bool isAcceptedChar(string s)
         {
             return Regex.Match(s, acceptedCharRegex).Success;
@@ -277,6 +285,8 @@ namespace SudokuMultimodal
 
         private void SetupVoice()
         {
+            // Se configura el timer que activa la entrada Raton+Voz
+            // Si se mantiene el botón izquierdo del ratón pulsado sin moverse durante 500 ms se activa el reconocimiento de voz
             voiceEnablingTimer = new DispatcherTimer();
             voiceEnablingTimer.Interval = TimeSpan.FromMilliseconds(500);
             voiceEnablingTimer.Tick += VoiceEnablingTimer_Tick;
@@ -291,6 +301,7 @@ namespace SudokuMultimodal
             _solicitudCambioNúmero(result.Equals(DELETE) ? 0 : int.Parse(result));
         }
 
+        // Al dispararse el timer, se desactiva el inkCanvas y se activa el reconocimiento de voz
         private void VoiceEnablingTimer_Tick(object sender, EventArgs e)
         {
             voiceEnablingTimer.Stop();
@@ -301,6 +312,7 @@ namespace SudokuMultimodal
 
         #endregion
 
+        // Se suscribe/dessuscribe a los eventos de ratón que activan los modos de entrada a nivel de celda.
         #region Enable/Disable input methods (VoiceOnly)
         public void EnableInputMethods()
         {
