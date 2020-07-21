@@ -255,7 +255,7 @@ namespace SudokuMultimodal
 
         #region Udpmote
 
-        private const string GESTURE_FILE = "\\sudoku_gestures.bin";
+        private const string GESTURE_FILE = "\\files\\sudoku_gestures.bin";
         private const string DELETE = "BORRAR", NEW = "NUEVO", RESTART = "REINICIAR", SHOW_POSSIBLE = "POSIBLES";
 
         private Udpmote udpmote;

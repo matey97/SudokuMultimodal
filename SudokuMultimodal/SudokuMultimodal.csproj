@@ -99,15 +99,15 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="files\sudoku_gestures.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="sudoku_gestures.bin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="sudoku_grammar.srgs">
+    <None Include="files\sudoku_grammar.srgs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -131,10 +131,10 @@
     <None Include="Resources\recog_failed.wav" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="loading.png" />
+    <Resource Include="images\loading.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="sudoku.ico">
+    <Resource Include="images\sudoku.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

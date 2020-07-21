@@ -69,7 +69,7 @@ namespace SudokuMultimodal
         private Grammar GetOnlyVoiceGrammar()
         {
             if (onlyVoiceGrammar == null)
-                onlyVoiceGrammar = new Grammar("sudoku_grammar.srgs");
+                onlyVoiceGrammar = new Grammar("files/sudoku_grammar.srgs");
 
             return onlyVoiceGrammar;
         }

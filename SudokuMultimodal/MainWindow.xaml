@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SudokuMultimodal"
         mc:Ignorable="d"
-        Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470" Icon="sudoku.ico" >
+        Title="Sudoku Multimodal" Height="470" Width="600" MinWidth="600" MinHeight="470" Icon="images/sudoku.ico" >
 
     <Window.Resources>
         <Storyboard x:Key="spinnerRotationStoryboard" Storyboard.TargetName="IM_Spinner" Storyboard.TargetProperty="RenderTransform.(RotateTransform.Angle)">
@@ -18,7 +18,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-            <Image Name="IM_Spinner" Width="10" Height="30" Source="loading.png" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+            <Image Name="IM_Spinner" Width="10" Height="30" Source="images/loading.png" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
                 <Image.Triggers>
                     <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                         <EventTrigger.Actions>
